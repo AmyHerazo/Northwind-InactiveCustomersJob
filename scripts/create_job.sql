@@ -10,7 +10,6 @@ CREATE TABLE InactiveCustomersLog (
     LastOrderDate DATE NOT NULL,
     InactivityLoggedDate DATETIME DEFAULT GETDATE()
         );
-END
 GO
 
 IF OBJECT_ID('sp_LogInactiveCustomers', 'P') IS NOT NULL
