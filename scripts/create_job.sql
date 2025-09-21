@@ -1,12 +1,8 @@
 USE Northwind2025;
 GO
---creo una tabla 
 
 	
---hay que hacer la clase InactiveCustomersLog
-BEGIN	
-	
-END
+
 
 -- insertar los cientes inactivos 
 INSERT INTO InactiveCustomersLog (CustomerID, CompanyName, ContactName, LastDate)
