@@ -1,12 +1,8 @@
 USE Northwind2025;
 GO
---creo una tabla 
 
 	
---hay que hacer la clase InactiveCustomersLog
-BEGIN	
-	
-END
+
 
 -- insertar los cientes inactivos 
 INSERT INTO InactiveCustomersLog (CustomerID, CompanyName, ContactName, LastDate)
@@ -18,7 +14,14 @@ MAX(Orders.OrderDate) AS LastDate -- este lastdate cambia de acuerdo a como se l
 FROM Customers
 INNER JOIN  Orders ON Customers.CustomerID = Orders.CustomerID
 GROUP BY Customers.CustomerID, Customers.CompanyName, Customers.ContactName
-
+HAVING MAX(Orders.OrderDate) < DATEADD(DAY, -183, GETDATE()) 
+       AND NOT EXISTS (
+            SELECT 1 
+            FROM InactiveCustomersLog ic
+            WHERE ic.CustomerID = Customers.CustomerID
+       );
+;
+GO
 /*=================================*/
 
 -- Crear el job
@@ -56,3 +59,4 @@ GO
 EXEC msdb.dbo.sp_add_jobserver
     @job_name = 'Job_LogInactiveCustomers';
 GO
+>>>>>>> aca667c7e22f170d3b58d7524f924106aa56288f
