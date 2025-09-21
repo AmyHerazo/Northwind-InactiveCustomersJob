@@ -1,4 +1,6 @@
 -- Script para crear la tabla de clientes inactivos 
+<<<<<<< HEAD
+=======
 GO
 -- indica la base de datos con la que se va a trabajar y de donde se va a extraer la información 
 USE Northwind2025;
@@ -16,3 +18,4 @@ CREATE TABLE InactiveCustomersLog (
 );
 
 
+>>>>>>> parent of 020fc09 (Revert "Update create_inactive_log_table.sql")
