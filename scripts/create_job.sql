@@ -24,7 +24,7 @@ HAVING MAX(Orders.OrderDate) < DATEADD(DAY, -183, GETDATE())
             FROM InactiveCustomersLog ic
             WHERE ic.CustomerID = Customers.CustomerID
        );
-END;
+;
 GO
 /*=================================*/
 
