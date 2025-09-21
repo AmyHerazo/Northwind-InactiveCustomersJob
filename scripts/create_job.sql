@@ -18,3 +18,11 @@ MAX(Orders.OrderDate) AS LastDate -- este lastdate cambia de acuerdo a como se l
 FROM Customers
 INNER JOIN  Orders ON Customers.CustomerID = Orders.CustomerID
 GROUP BY Customers.CustomerID, Customers.CompanyName, Customers.ContactName
+HAVING MAX(Orders.OrderDate) < DATEADD(DAY, -183, GETDATE()) 
+       AND NOT EXISTS (
+            SELECT 1 
+            FROM InactiveCustomersLog ic
+            WHERE ic.CustomerID = Customers.CustomerID
+       );
+END;
+GO
