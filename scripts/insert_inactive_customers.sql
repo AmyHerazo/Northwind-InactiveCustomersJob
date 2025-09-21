@@ -2,21 +2,6 @@ GO
 -- indica la base de datos con la que se va a trabajar y de donde se va a extraer la información 
 USE Northwind2025;
 GO
-
--- Crear la tabla si no existe
-IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='InactiveCustomersLog' AND xtype='U')
-CREATE TABLE InactiveCustomersLog (
-    LogID INT IDENTITY(1,1) PRIMARY KEY,
-    CustomerID CHAR(5) NOT NULL,
-    CompanyName NVARCHAR(40) NOT NULL,
-    ContactName NVARCHAR(30) NULL,
-    FechaUltimoPedido DATE NOT NULL,
-    LogDate DATETIME DEFAULT GETDATE()
-);
-GO
-
-USE Northwind2025;
-GO
 -- Se crea el procedimiento almacenado si no existe, o lo modifica si ya existe
 CREATE OR ALTER PROCEDURE sp_LogInactiveCustomers
 AS
