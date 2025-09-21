@@ -1,27 +1,43 @@
 USE Northwind2025;
 GO
 
-	
-
-
--- insertar los cientes inactivos 
-INSERT INTO InactiveCustomersLog (CustomerID, CompanyName, ContactName, LastDate)
-SELECT
-Customers.CustomerID,
-Customers.CompanyName,
-Customers.ContactName,
-MAX(Orders.OrderDate) AS LastDate -- este lastdate cambia de acuerdo a como se llame la fecha del ultimo pedido en la clase de los inactivos 
-FROM Customers
-INNER JOIN  Orders ON Customers.CustomerID = Orders.CustomerID
-GROUP BY Customers.CustomerID, Customers.CompanyName, Customers.ContactName
-HAVING MAX(Orders.OrderDate) < DATEADD(DAY, -183, GETDATE()) 
-       AND NOT EXISTS (
-            SELECT 1 
-            FROM InactiveCustomersLog ic
-            WHERE ic.CustomerID = Customers.CustomerID
-       );
-;
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='InactiveCustomersLog' AND xtype='U')
+CREATE TABLE InactiveCustomersLog (
+    LogID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID CHAR(5) NOT NULL,
+    CompanyName NVARCHAR(40) NOT NULL,
+    ContactName NVARCHAR(30) NULL,
+    LastOrderDate DATE NOT NULL,
+    InactivityLoggedDate DATETIME DEFAULT GETDATE()
+        );
+END
 GO
+
+IF OBJECT_ID('sp_LogInactiveCustomers', 'P') IS NOT NULL
+    DROP PROCEDURE sp_LogInactiveCustomers;
+GO
+
+CREATE PROCEDURE sp_LogInactiveCustomers
+AS
+BEGIN
+    INSERT INTO InactiveCustomersLog (CustomerID, CompanyName, ContactName, LastOrderDate)
+    SELECT
+        c.CustomerID,
+        c.CompanyName,
+        c.ContactName,
+        MAX(o.OrderDate) AS LastOrderDate
+    FROM Customers c
+    INNER JOIN Orders o ON c.CustomerID = o.CustomerID
+    GROUP BY c.CustomerID, c.CompanyName, c.ContactName
+    HAVING MAX(o.OrderDate) < DATEADD(DAY, -183, GETDATE())
+           AND NOT EXISTS (
+                SELECT 1 
+                FROM InactiveCustomersLog ic
+                WHERE ic.CustomerID = c.CustomerID
+           );
+END;
+GO
+
 /*=================================*/
 
 -- Crear el job
@@ -58,5 +74,4 @@ GO
 -- Asociar el job al servidor actual
 EXEC msdb.dbo.sp_add_jobserver
     @job_name = 'Job_LogInactiveCustomers';
-GO
->>>>>>> aca667c7e22f170d3b58d7524f924106aa56288f
+GO 
