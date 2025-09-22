@@ -38,6 +38,13 @@ END;
 GO
 
 /*=================================*/
+USE msdb;
+GO
+
+-- Primero eliminamos el job si ya existe (opcional)
+IF EXISTS (SELECT 1 FROM msdb.dbo.sysjobs WHERE name = 'Job_LogInactiveCustomers')
+    EXEC msdb.dbo.sp_delete_job @job_name = 'Job_LogInactiveCustomers';
+GO
 
 -- Crear el job
 EXEC msdb.dbo.sp_add_job
