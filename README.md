@@ -54,6 +54,29 @@
 
 ---
 
+## 🎓 SQL y los paradigmas de programación
+
+El lenguaje **SQL** se relaciona con varios paradigmas de programación, pero en este proyecto se manifiestan de la siguiente forma:
+
+### 🔹 Paradigma principal: Declarativo / Funcional
+- SQL es un **lenguaje declarativo**, ya que las consultas describen *qué resultado se desea* y no *cómo obtenerlo*.  
+- En este proyecto: el script `query_inactive_customers.sql` define las condiciones de inactividad y deja que el motor de SQL Server calcule el resultado.  
+- Esto lo aproxima al **paradigma funcional**, donde las consultas se comportan como funciones puras sobre los datos.
+
+### 🔹 Paradigma Imperativo
+- Aparece cuando se definen acciones en secuencia que cambian el estado de la base de datos.  
+- En este proyecto: `insert_inactive_customers.sql` ejecuta instrucciones que **modifican** la tabla de log agregando nuevos registros.
+
+### 🔹 Paradigma Orientado a Objetos (visión conceptual en tablas)
+- Las tablas como `Customers` pueden entenderse como entidades con atributos (columnas) y relaciones (claves foráneas).  
+- De este modo, la estructura de la base refleja principios de organización típicos del paradigma orientado a objetos.
+
+### 🔹 Paradigma Lógico
+- SQL utiliza **hechos** (datos almacenados) y **reglas** (`WHERE`, `JOIN`) para inferir conclusiones.  
+- Ejemplo: en este proyecto, la regla “un cliente es inactivo si no tiene pedidos en los últimos X días” se traduce directamente en una consulta.
+
+---
+
 ## Notas
 
 - Puedes modificar los criterios de inactividad directamente en el script `query_inactive_customers.sql`.  
