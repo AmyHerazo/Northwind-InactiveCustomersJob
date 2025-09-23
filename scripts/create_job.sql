@@ -28,7 +28,7 @@ EXEC sp_add_jobschedule
     @name = 'EjecucionDiaria',
     @freq_type = 4, -- Diariamente
     @freq_interval = 1,
-    @active_start_time = 20000; -- 2:00 AM en formato HHMMSS
+    @active_start_time = 20000; 
 
 -- Asignar el JOB al servidor local
 EXEC sp_add_jobserver
