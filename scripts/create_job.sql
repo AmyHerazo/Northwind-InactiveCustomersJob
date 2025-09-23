@@ -1,58 +1,41 @@
-USE Northwind2025;
+USE msdb;
 GO
---creo una tabla 
 
-	
---hay que hacer la clase InactiveCustomersLog
-BEGIN	
-	
-END
+-- Eliminar el JOB si ya existe (para evitar errores)
+IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs WHERE name = 'Job_DetectarClientesInactivos')
+    EXEC sp_delete_job @job_name = 'Job_DetectarClientesInactivos';
+GO
 
--- insertar los cientes inactivos 
-INSERT INTO InactiveCustomersLog (CustomerID, CompanyName, ContactName, LastDate)
-SELECT
-Customers.CustomerID,
-Customers.CompanyName,
-Customers.ContactName,
-MAX(Orders.OrderDate) AS LastDate -- este lastdate cambia de acuerdo a como se llame la fecha del ultimo pedido en la clase de los inactivos 
-FROM Customers
-INNER JOIN  Orders ON Customers.CustomerID = Orders.CustomerID
-GROUP BY Customers.CustomerID, Customers.CompanyName, Customers.ContactName
-
-/*=================================*/
-
--- Crear el job
-EXEC msdb.dbo.sp_add_job
-    @job_name = 'Job_LogInactiveCustomers',
+-- Crear el JOB
+EXEC dbo.sp_add_job
+    @job_name = 'Job_DetectarClientesInactivos',
     @enabled = 1,
-    @description = 'Job que detecta clientes inactivos y los inserta en InactiveCustomersLog';
+    @description = 'Detectar clientes inactivos (sin pedidos en últimos 183 días)';
 GO
 
--- Crear un paso que ejecute el procedimiento
-EXEC msdb.dbo.sp_add_jobstep
-    @job_name = 'Job_LogInactiveCustomers',
-    @step_name = 'Detectar clientes inactivos',
+-- Paso del JOB: Ejecutar el stored procedure
+EXEC sp_add_jobstep
+    @job_name = 'Job_DetectarClientesInactivos',
+    @step_name = 'Ejecutar SP Inactivos',
     @subsystem = 'TSQL',
-    @database_name = 'Northwind2025',
-    @command = 'EXEC sp_LogInactiveCustomers;',
-    @on_success_action = 1;
+    @command = 'EXEC Northwind2025.dbo.sp_LogInactiveCustomers;',
+    @database_name = 'Northwind2025';
 GO
 
--- Crear un schedule (ejemplo: todos los días a las 02:00 AM)
-EXEC msdb.dbo.sp_add_schedule
-    @schedule_name = 'Daily_LogInactiveCustomers',
-    @freq_type = 4, -- Diario
+-- Programar el JOB para ejecutar diariamente a las 2:00 AM
+EXEC sp_add_jobschedule
+    @job_name = 'Job_DetectarClientesInactivos',
+    @name = 'EjecucionDiaria',
+    @freq_type = 4, -- Diariamente
     @freq_interval = 1,
-    @active_start_time = 020000; -- 02:00 AM
+    @active_start_time = 20000; -- 2:00 AM en formato HHMMSS
+
+-- Asignar el JOB al servidor local
+EXEC sp_add_jobserver
+    @job_name = 'Job_DetectarClientesInactivos',
+    @server_name = @@SERVERNAME;
 GO
 
--- Asociar el schedule al job
-EXEC msdb.dbo.sp_attach_schedule
-    @job_name = 'Job_LogInactiveCustomers',
-    @schedule_name = 'Daily_LogInactiveCustomers';
-GO
-
--- Asociar el job al servidor actual
-EXEC msdb.dbo.sp_add_jobserver
-    @job_name = 'Job_LogInactiveCustomers';
-GO
+USE Northwind2025;
+EXEC sp_LogInactiveCustomers;
+SELECT * FROM InactiveCustomersLog;
