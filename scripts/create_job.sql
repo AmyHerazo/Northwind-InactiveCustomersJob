@@ -39,3 +39,4 @@ GO
 USE Northwind2025;
 EXEC sp_LogInactiveCustomers;
 SELECT * FROM InactiveCustomersLog;
+
